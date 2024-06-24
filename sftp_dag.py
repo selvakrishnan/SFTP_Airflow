@@ -27,30 +27,30 @@ with DAG("sftp_dag",
 
     wait_for_input_file = SFTPSensor(task_id="check-for-file",
                                      sftp_conn_id="my_sftp_server",
-                                     path="/{{ ds }}/input.csv",
+                                     path="/folder_name/input.csv",
                                      poke_interval=10)
 
     download_file = SFTPOperator(
         task_id="get-file",
         ssh_conn_id="my_sftp_server",
-        remote_filepath="/{{ ds }}/input.csv", #checks for folder in yyyy-MM-dd
-        local_filepath="/tmp/{{ run_id }}/input.csv",
+        remote_filepath="/folder_name/input.csv", 
+        local_filepath="/tmp/folder_name/input.csv",
         operation="get",
         create_intermediate_dirs=True
     )
 
     process_file = PythonOperator(task_id="process-file",
                                   templates_dict={
-                                      "input_file": "/tmp/{{ run_id }}/input.csv", #run id
-                                      "output_file": "/tmp/{{ run_id }}/output.csv"
+                                      "input_file": "/tmp/folder_name/input.csv", 
+                                      "output_file": "/tmp/folder_name/output.csv"
                                   },
                                   python_callable=process_file)
 
     upload_file = SFTPOperator(
         task_id="put-file",
         ssh_conn_id="my_sftp_server",
-        remote_filepath="/{{ds}}/output.csv",
-        local_filepath="/tmp/{{ run_id }}/output.csv",
+        remote_filepath="/folder_name/output.csv",
+        local_filepath="/tmp/folder_name/output.csv",
         operation="put"
     )
 
